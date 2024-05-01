@@ -13,6 +13,7 @@ const Navbar = () => {
 
   const dropDownHandler = () => {
     setShowDropDown((prev) => true);
+    console.log(showDropDown);
   };
   const hideDropDownHandler = () => {
     setShowDropDown((prev) => false);
