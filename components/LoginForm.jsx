@@ -1,7 +1,20 @@
+'use client';
+
 import Input from '@/components/Input';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const LoginForm = () => {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) {
+    return null;
+  }
+
   return (
     <section className='container w-full'>
       <form className=' border-2 border-gray-400 rounded-lg px-8 py-6 space-y-5 max-w-sm flex flex-col '>

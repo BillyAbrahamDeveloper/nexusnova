@@ -95,10 +95,24 @@ const Navbar = () => {
         ) : (
           <div className=' flex items-center justify-between gap-10'>
             <li>
-              <Link href='/login'>Login</Link>
+              <Link
+                className={
+                  pathName === '/login' ? 'text-green-300 font-bold' : ''
+                }
+                href='/login'
+              >
+                Login
+              </Link>
             </li>
             <li>
-              <Link href='/signup'>SignUp</Link>
+              <Link
+                className={
+                  pathName === '/signup' ? 'text-green-300 font-bold' : ''
+                }
+                href='/signup'
+              >
+                SignUp
+              </Link>
             </li>
           </div>
         )}
