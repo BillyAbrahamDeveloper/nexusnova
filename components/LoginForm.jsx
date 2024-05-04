@@ -1,11 +1,25 @@
 'use client';
-
-import Input from '@/components/Input';
+import React, { useState, useEffect } from 'react';
+import Input from './Input';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+
+const initialState = {
+  name: '',
+  email: '',
+  password: '',
+};
 
 const LoginForm = () => {
   const [hydrated, setHydrated] = useState(false);
+
+  const [state, setState] = useState(initialState);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     setHydrated(true);
@@ -15,32 +29,95 @@ const LoginForm = () => {
     return null;
   }
 
+  const handleChange = (event) => {
+    setError('');
+    setState({ ...state, [event.target.name]: event.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { email, password } = state;
+
+    if (!email || !password) {
+      setError('All fields are required');
+      return;
+    }
+
+    // Regular expression pattern for a basic email validation
+    const pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+    if (!pattern.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError('Invalid Credentials');
+        setIsLoading(false);
+        return;
+      }
+
+      router.push('/blog');
+    } catch (error) {
+      console.log(error);
+    }
+
+    setIsLoading(false);
+  };
+
   return (
-    <section className='container w-full'>
-      <form className=' border-2 border-gray-400 rounded-lg px-8 py-6 space-y-5 max-w-sm flex flex-col '>
-        <h2 className=' text-center uppercase font-bold text-2xl'>Login</h2>
+    <section className='container'>
+      <form
+        onSubmit={handleSubmit}
+        className='border-2 border-paragraphColor rounded-lg max-w-sm mx-auto px-8 py-6 space-y-5'
+      >
+        <h2 className='text-center special-word'>Login</h2>
 
         <Input
-          type='email'
           label='Email'
+          type='text'
           name='email'
-          placeholder='Enter your email...'
+          onChange={handleChange}
+          value={state.email}
         />
         <Input
-          type='password'
           label='Password'
-          name='Password'
-          placeholder='Enter your password...'
+          type='password'
+          name='password'
+          onChange={handleChange}
+          value={state.password}
         />
-        <button className=' rounded-lg   mt-10  bg-primaryColor py-3 px-7 font-bold  '>
-          Submit
+
+        {error && <div className='text-red-700'>{error}</div>}
+
+        {success && <div className='text-green-700'>{success}</div>}
+
+        <button
+          type='submit'
+          className='btn w-full bg-slate-200 text-black p-2 text-xl rounded-lg'
+        >
+          {isLoading ? 'Loading...' : 'Login'}
         </button>
 
-        <p className='text-center '>
-          Need a new account?
-          <Link href='/login' className=' text-blue-600'>
-            {' '}
-            Sign up
+        <p className='text-center'>
+          Need an account?{' '}
+          <Link href={'/signup'} className='text-blue-600'>
+            Sign Up
           </Link>
         </p>
       </form>
