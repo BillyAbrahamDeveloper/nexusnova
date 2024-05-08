@@ -4,8 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 
 const Navbar = () => {
+  const { data: session, status } = useSession();
+
   const pathName = usePathname();
   const [showDropDown, setShowDropDown] = useState(false);
 
@@ -38,7 +41,7 @@ const Navbar = () => {
           </Link>
         </li>
 
-        {!loggedIn ? (
+        {session ? (
           <div className=' flex items-center justify-between gap-10'>
             <li>
               <Link
@@ -82,8 +85,11 @@ const Navbar = () => {
                       Profile
                     </Link>
                     <button
-                      onClick={hideDropDownHandler}
-                      className=' cursor-pointer text-red-600  text-4xl text-center'
+                      onClick={() => {
+                        signOut();
+                        hideDropDownHandler();
+                      }}
+                      className='cursor-pointer text-red-600 text-4xl text-center'
                     >
                       x
                     </button>
