@@ -67,7 +67,7 @@ const LoginForm = () => {
       });
 
       if (res?.error) {
-        setError('Invalid Credentials');
+        setError('User not found');
         setIsLoading(false);
         return;
       }
