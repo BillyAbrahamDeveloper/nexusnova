@@ -1,5 +1,122 @@
+'use client';
+import Link from 'next/link';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Input from '@/components/Input';
+import TextArea from '@/components/TextArea';
+import Image from 'next/image';
+
+const initialState = {
+  title: '',
+  description: '',
+  excerpt: '',
+  quote: '',
+  category: 'Songbirds',
+  photo: '',
+};
+
 const WritePage = () => {
-  return <div>Enter</div>;
+  const [state, setState] = useState(initialState);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+
+  const createHandler = (e) => {
+    e.preventDefault();
+  };
+
+  const changeHandler = (e) => {
+    setError('');
+    setState({ ...state, [e.target.name]: e.target.value });
+  };
+
+  return (
+    <section className=' mt-10 container '>
+      <h2 className='text-6xl  font-thin text-green-300'>
+        Create <span className=' font-bold text-gray-100'> Blog</span>
+      </h2>
+
+      <form onSubmit={createHandler} className=' space-y-5'>
+        <Input
+          type='text'
+          label='Title'
+          name='Title'
+          placeholder='Enter your title...'
+          onChange={changeHandler}
+          value={state.title}
+        />
+
+        <TextArea
+          rows='5'
+          label='Description'
+          name='Title'
+          placeholder='Enter your description...'
+          onChange={changeHandler}
+          value={state.description}
+        />
+
+        <TextArea
+          rows='2'
+          label='Excerpt'
+          name='excerpt'
+          placeholder='Enter your excerpt...'
+          onChange={changeHandler}
+          value={state.description}
+        />
+
+        <TextArea
+          rows='2'
+          label='Quote'
+          name='Quote'
+          placeholder='Enter your quote...'
+          onChange={changeHandler}
+          value={state.description}
+        />
+
+        <div>
+          <label className='block'>Select a category</label>
+
+          <select
+            name='category'
+            onChange={changeHandler}
+            value={state.category}
+            className='block rounded-lg w-full p-3 bg-primaryLightColor'
+          >
+            <option value='One'>One</option>
+            <option value='Two'>Two</option>
+            <option value='Three'>Three</option>
+            <option value='Four'>Four</option>
+            <option value='Five'>Five</option>
+          </select>
+        </div>
+
+        <div>
+          <label className=' block mb-2 text-sm font-medium'>
+            Upload Images
+          </label>
+          <input type='file' name='photo' accept='*' />
+          <Image
+            width={0}
+            height={0}
+            sizes='150vw'
+            alt='Sample Image'
+            src='https://plus.unsplash.com/premium_photo-1688821128189-c4f2d10b33f1?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            className='w-32 mt-5'
+          />
+        </div>
+
+        {error && <div className='text-red-600'>{error}</div>}
+        {success && <div className='text-green-600'>{success}</div>}
+
+        <button className=' rounded-lg   bg-primaryColor py-3 px-7 font-bold  '>
+          Create
+        </button>
+      </form>
+    </section>
+  );
 };
 
 export default WritePage;
