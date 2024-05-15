@@ -6,6 +6,8 @@ import { authOptions } from '../api/auth/[...nextauth]/route';
 const SignUpPage = async () => {
   const session = await getServerSession(authOptions);
 
+  console.log(session);
+
   if (session) redirect('/blog');
 
   return (

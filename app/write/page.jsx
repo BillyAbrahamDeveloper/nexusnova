@@ -1,8 +1,11 @@
 'use client';
 import Link from 'next/link';
 
-import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import Input from '@/components/Input';
 import TextArea from '@/components/TextArea';
 import Image from 'next/image';
@@ -17,20 +20,117 @@ const initialState = {
 };
 
 const WritePage = () => {
+  const CLOUD_NAME = 'drmoexxgd';
+  const UPLOAD_PRESET = 'nextjs_blog_images';
+
   const [state, setState] = useState(initialState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const createHandler = (e) => {
-    e.preventDefault();
-  };
+  console.log(session);
+
+  if (status === 'loading') {
+    return <p>loading...</p>;
+  }
+
+  if (status === 'unauthenticated') {
+    return <p>access denied</p>;
+  }
 
   const changeHandler = (e) => {
     setError('');
-    setState({ ...state, [e.target.name]: e.target.value });
+    const { name, value, type, files } = e.target;
+
+    if (type === 'file') {
+      setState({ ...state, [name]: files[0] });
+    } else {
+      setState({ ...state, [name]: value });
+    }
+  };
+
+  const createHandler = async (e) => {
+    e.preventDefault();
+
+    const { photo, title, category, description, excerpt, quote } = state;
+
+    if (!title || !category || !description || excerpt || !quote) {
+      setError('Befor creating post please fill out all required fieldss!');
+      return;
+    }
+
+    if (photo) {
+      const maxSize = 5 * 1024 * 1024;
+      if (photo.size > maxSize) {
+        setError('File should not be larger then 5MB');
+        return;
+      }
+    }
+
+    if (title.length < 4) {
+      setError('Title should be at least 4 characters');
+    }
+
+    if (description.length < 20) {
+      setError('Description should be at least 20 characters');
+    }
+
+    if (excerpt.length < 10) {
+      setError('excerpt should be at least 10 characters');
+    }
+
+    if (quote.length < 6) {
+      setError('Quote should be at least 6 characters');
+    }
+
+    try {
+      setIsLoading(true);
+      setError('');
+      setSuccess('');
+
+      const image = await uploadImage();
+
+      const newBlog = {
+        title,
+        description,
+        excerpt,
+        quote,
+        category,
+        image,
+        authorId,
+      };
+    } catch (error) {}
+  };
+
+  const uploadImage = async () => {
+    if (!state.photo) return;
+
+    const formdata = new FormData();
+    formdata.append('file', state.photo);
+    formdata.append('upload_preset', UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formdata,
+        }
+      );
+
+      const data = await res.json();
+      const image = {
+        id: data['public_id'],
+        url: data['secure_url'],
+      };
+
+      return image;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
